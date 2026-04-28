@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOLTA — Creative Agency</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --fg: #f0ece4;
+    --accent: #d4ff2b;
+    --muted: #5a5a5a;
+    --card-bg: #141414;
+    --card-hover: #1a1a1a;
+    --serif: 'Playfair Display', Georgia, serif;
+    --sans: 'DM Sans', sans-serif;
+    --mono: 'Space Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) var(--bg);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--sans);
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* ─── Grain Overlay ─── */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ─── Custom Cursor ─── */
+  .cursor {
+    width: 20px; height: 20px;
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 10000;
+    transition: transform 0.15s ease, background 0.15s ease;
+    mix-blend-mode: difference;
+  }
+  .cursor.hovering {
+    transform: scale(3);
+    background: var(--accent);
+  }
+
+  /* ─── Navigation ─── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 28px 48px;
+    z-index: 100;
+    mix-blend-mode: difference;
+  }
+  .logo {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 900;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+  }
+  .logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 36px; }
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    position: relative;
+    padding-bottom: 4px;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 0; height: 1px;
+    background: var(--accent);
+    transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  .nav-links a:hover::after { width: 100%; }
+
+  /* ─── Hero ─── */
+  .hero {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg-text {
+    position: absolute;
+    font-family: var(--serif);
+    font-size: 28vw;
+    font-weight: 900;
+    color: var(--card-bg);
+    right: -5%;
+    top: 50%;
+    transform: translateY(-50%);
+    line-height: 0.85;
+    pointer-events: none;
+    user-select: none;
+  }
+  .hero-tag {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+    opacity: 0;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(3rem, 8vw, 8rem);
+    font-weight: 900;
+    line-height: 0.95;
+    max-width: 900px;
+    position: relative;
+    z-index: 2;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .hero-line {
+    display: block;
+    overflow: hidden;
+  }
+  .hero-line-inner {
+    display: block;
+    transform: translateY(110%);
+  }
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 480px;
+    margin-top: 40px;
+    line-height: 1.7;
+    font-weight: 300;
+    opacity: 0;
+  }
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 48px;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: 0;
+    cursor: pointer;
+  }
+  .hero-cta .arrow {
+    width: 48px; height: 1px;
+    background: var(--accent);
+    position: relative;
+    transition: width 0.4s ease;
+  }
+  .hero-cta .arrow::after {
+    content: '';
+    position: absolute;
+    right: 0; top: -4px;
+    width: 10px; height: 10px;
+    border-right: 1px solid var(--accent);
+    border-bottom: 1px solid var(--accent);
+    transform: rotate(-45deg);
+  }
+  .hero-cta:hover .arrow { width: 72px; }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 40px;
+    left: 48px;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+  }
+  .scroll-line {
+    width: 1px; height: 48px;
+    background: var(--muted);
+    position: relative;
+    overflow: hidden;
+  }
+  .scroll-line::after {
+    content: '';
+    position: absolute;
+    top: -100%; left: 0;
+    width: 100%; height: 100%;
+    background: var(--accent);
+    animation: scrollPulse 2s ease infinite;
+  }
+  @keyframes scrollPulse {
+    0% { top: -100%; }
+    50% { top: 0; }
+    100% { top: 100%; }
+  }
+
+  /* ─── Section Styles ─── */
+  section { padding: 160px 48px; position: relative; }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .section-number {
+    font-family: var(--serif);
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 40px;
+  }
+  .section-title {
+    font-family: var(--serif);
+    font-size: clamp(2.2rem, 5vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    max-width: 700px;
+    margin-bottom: 60px;
+  }
+  .section-title em { color: var(--accent); font-style: italic; }
+
+  /* ─── Marquee ─── */
+  .marquee-section {
+    padding: 80px 0;
+    overflow: hidden;
+    border-top: 1px solid #1f1f1f;
+    border-bottom: 1px solid #1f1f1f;
+  }
+  .marquee-track {
+    display: flex;
+    gap: 60px;
+    width: max-content;
+    will-change: transform;
+  }
+  .marquee-item {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 5vw, 5rem);
+    font-weight: 900;
+    white-space: nowrap;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--muted);
+    transition: all 0.4s ease;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+  }
+  .marquee-item .dot {
+    width: 12px; height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ─── Services ─── */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 2px;
+  }
+  .service-card {
+    background: var(--card-bg);
+    padding: 56px 40px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: background 0.5s ease;
+  }
+  .service-card:hover { background: var(--card-hover); }
+  .service-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 3px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  .service-card:hover::before { transform: scaleX(1); }
+  .service-icon {
+    font-size: 2.4rem;
+    margin-bottom: 28px;
+    display: block;
+  }
+  .service-card h3 {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .service-card p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+  .service-number {
+    position: absolute;
+    top: 20px; right: 24px;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+
+  /* ─── Portfolio ─── */
+  .portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  .portfolio-item {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    aspect-ratio: 16/10;
+    background: var(--card-bg);
+  }
+  .portfolio-item:nth-child(1) { grid-column: 1 / -1; aspect-ratio: 21/9; }
+  .portfolio-img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 1.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  .portfolio-item:hover .portfolio-img { transform: scale(1.08); }
+  .portfolio-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgba(10,10,10,0.95) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 40px;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+  .portfolio-item:hover .portfolio-overlay { opacity: 1; }
+  .portfolio-overlay h3 {
+    font-family: var(--serif);
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .portfolio-overlay p {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .portfolio-overlay .year {
+    position: absolute;
+    top: 24px; right: 28px;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  /* SVG placeholder patterns for portfolio */
+  .portfolio-visual {
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .portfolio-visual svg { width: 100%; height: 100%; }
+
+  /* ─── Stats ─── */
+  .stats-section {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    padding: 0 48px;
+    margin: 0;
+  }
+  .stat-item {
+    background: var(--card-bg);
+    padding: 64px 40px;
+    text-align: center;
+  }
+  .stat-number {
+    font-family: var(--serif);
+    font-size: clamp(2.5rem, 4vw, 4rem);
+    font-weight: 900;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ─── Process ─── */
+  .process-list {
+    max-width: 800px;
+  }
+  .process-item {
+    display: flex;
+    gap: 40px;
+    padding: 48px 0;
+    border-bottom: 1px solid #1f1f1f;
+    align-items: flex-start;
+    cursor: pointer;
+    transition: padding-left 0.4s ease;
+  }
+  .process-item:hover { padding-left: 20px; }
+  .process-step {
+    font-family: var(--serif);
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--accent);
+    opacity: 0.3;
+    line-height: 1;
+    min-width: 80px;
+    transition: opacity 0.4s ease;
+  }
+  .process-item:hover .process-step { opacity: 1; }
+  .process-content h3 {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .process-content p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* ─── Testimonial ─── */
+  .testimonial-section {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .quote-mark {
+    font-family: var(--serif);
+    font-size: 8rem;
+    color: var(--accent);
+    line-height: 0.5;
+    opacity: 0.3;
+    margin-bottom: 40px;
+  }
+  .testimonial-text {
+    font-family: var(--serif);
+    font-size: clamp(1.4rem, 3vw, 2.2rem);
+    font-weight: 400;
+    font-style: italic;
+    line-height: 1.5;
+    margin-bottom: 40px;
+  }
+  .testimonial-author {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .testimonial-role {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  /* ─── CTA ─── */
+  .cta-section {
+    text-align: center;
+    padding: 200px 48px;
+    position: relative;
+  }
+  .cta-section h2 {
+    font-family: var(--serif);
+    font-size: clamp(3rem, 7vw, 7rem);
+    font-weight: 900;
+    line-height: 0.95;
+    margin-bottom: 40px;
+  }
+  .cta-section h2 em { color: var(--accent); font-style: italic; }
+  .cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 48px;
+    border: 1px solid var(--accent);
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    cursor: pointer;
+    background: transparent;
+    transition: all 0.4s ease;
+  }
+  .cta-btn:hover {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  /* ─── Footer ─── */
+  footer {
+    padding: 80px 48px 40px;
+    border-top: 1px solid #1f1f1f;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 60px;
+  }
+  .footer-brand .logo { margin-bottom: 20px; display: block; }
+  .footer-brand p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    font-weight: 300;
+    max-width: 300px;
+  }
+  .footer-links h4, .footer-contact h4 {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+  }
+  .footer-links a, .footer-contact p {
+    display: block;
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+    transition: color 0.3s ease;
+  }
+  .footer-links a:hover { color: var(--fg); }
+  .footer-bottom {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    padding-top: 40px;
+    border-top: 1px solid #1f1f1f;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 768px) {
+    nav { padding: 20px 24px; }
+    .nav-links { display: none; }
+    section { padding: 100px 24px; }
+    .hero { padding: 0 24px; }
+    .services-grid { grid-template-columns: 1fr; }
+    .portfolio-grid { grid-template-columns: 1fr; }
+    .stats-section { grid-template-columns: repeat(2, 1fr); padding: 0 24px; }
+    footer { grid-template-columns: 1fr; padding: 60px 24px 30px; }
+    .cursor { display: none; }
+    .hero-bg-text { font-size: 50vw; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div class="cursor" id="cursor"></div>
+
+<!-- Navigation -->
+<nav>
+  <a href="#" class="logo">VOLTA<span>.</span></a>
+  <div class="nav-links">
+    <a href="#services" class="hoverable">Services</a>
+    <a href="#portfolio" class="hoverable">Work</a>
+    <a href="#process" class="hoverable">Process</a>
+    <a href="#contact" class="hoverable">Contact</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero" id="hero">
+  <div class="hero-bg-text">V</div>
+  <div class="hero-tag">Creative Digital Agency — Est. 2019</div>
+  <h1>
+    <span class="hero-line"><span class="hero-line-inner">We craft</span></span>
+    <span class="hero-line"><span class="hero-line-inner"><em>digital</em></span></span>
+    <span class="hero-line"><span class="hero-line-inner">experiences</span></span>
+  </h1>
+  <p class="hero-sub">We design and build brands, products, and digital experiences that resonate — blending strategy, aesthetics, and technology into something unforgettable.</p>
+  <a href="#portfolio" class="hero-cta hoverable">
+    View our work <span class="arrow"></span>
+  </a>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    Scroll
+  </div>
+</section>
+
+<!-- Marquee -->
+<div class="marquee-section">
+  <div class="marquee-track" id="marquee">
+    <span class="marquee-item">Brand Strategy <span class="dot"></span></span>
+    <span class="marquee-item">Web Design <span class="dot"></span></span>
+    <span class="marquee-item">Development <span class="dot"></span></span>
+    <span class="marquee-item">Motion Design <span class="dot"></span></span>
+    <span class="marquee-item">UX Research <span class="dot"></span></span>
+    <span class="marquee-item">Brand Strategy <span class="dot"></span></span>
+    <span class="marquee-item">Web Design <span class="dot"></span></span>
+    <span class="marquee-item">Development <span class="dot"></span></span>
+    <span class="marquee-item">Motion Design <span class="dot"></span></span>
+    <span class="marquee-item">UX Research <span class="dot"></span></span>
+  </div>
+</div>
+
+<!-- Services -->
+<section id="services">
+  <div class="section-label">What we do</div>
+  <div class="section-number">01</div>
+  <h2 class="section-title">Services built to <em>elevate</em> your brand</h2>
+  <div class="services-grid">
+    <div class="service-card" data-service>
+      <span class="service-number">001</span>
+      <span class="service-icon">◈</span>
+      <h3>Brand Identity</h3>
+      <p>From naming to visual systems, we build identities that cut through the noise. Logo design, brand guidelines, typography, and complete visual ecosystems.</p>
+    </div>
+    <div class="service-card" data-service>
+      <span class="service-number">002</span>
+      <span class="service-icon">◉</span>
+      <h3>Web Design & Dev</h3>
+      <p>Pixel-perfect interfaces powered by modern tech stacks. We craft responsive, high-performance sites with meticulous attention to every interaction.</p>
+    </div>
+    <div class="service-card" data-service>
+      <span class="service-number">003</span>
+      <span class="service-icon">△</span>
+      <h3>Motion & Animation</h3>
+      <p>Dynamic motion that brings static ideas to life. From micro-interactions to full cinematic sequences, we make brands move with purpose.</p>
+    </div>
+    <div class="service-card" data-service>
+      <span class="service-number">004</span>
+      <span class="service-icon">◎</span>
+      <h3>Digital Strategy</h3>
+      <p>Data-driven strategy that aligns your brand with business goals. SEO, content architecture, conversion optimization, and growth frameworks.</p>
+    </div>
+    <div class="service-card" data-service>
+      <span class="service-number">005</span>
+      <span class="service-icon">⬡</span>
+      <h3>Product Design</h3>
+      <p>End-to-end product thinking — from research and wireframes to polished interfaces. We design products people genuinely love using.</p>
+    </div>
+    <div class="service-card" data-service>
+      <span class="service-number">006</span>
+      <span class="service-icon">✦</span>
+      <h3>Creative Direction</h3>
+      <p>Big-picture vision for campaigns, launches, and brand moments. We lead creative from concept to execution across every touchpoint.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Portfolio -->
+<section id="portfolio">
+  <div class="section-label">Selected work</div>
+  <div class="section-number">02</div>
+  <h2 class="section-title">Projects that <em>speak</em> for themselves</h2>
+  <div class="portfolio-grid">
+
+    <div class="portfolio-item" data-portfolio>
+      <div class="portfolio-visual">
+        <svg viewBox="0 0 1200 500" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#1a1a2e"/>
+              <stop offset="100%" stop-color="#16213e"/>
+            </linearGradient>
+          </defs>
+          <rect width="1200" height="500" fill="url(#g1)"/>
+          <circle cx="300" cy="250" r="140" fill="none" stroke="#d4ff2b" stroke-width="1" opacity="0.4"/>
+          <circle cx="300" cy="250" r="90" fill="none" stroke="#d4ff2b" stroke-width="1" opacity="0.2"/>
+          <text x="600" y="240" font-family="Georgia" font-size="72" fill="#f0ece4" text-anchor="middle" font-weight="bold">AURORA</text>
+          <text x="600" y="290" font-family="monospace" font-size="14" fill="#5a5a5a" text-anchor="middle" letter-spacing="8">FINTECH PLATFORM</text>
+          <line x1="480" y1="310" x2="720" y2="310" stroke="#d4ff2b" stroke-width="1" opacity="0.3"/>
+        </svg>
+      </div>
+      <div class="portfolio-overlay">
+        <span class="year">2025</span>
+        <h3>Aurora Finance</h3>
+        <p>Brand Identity — Web Platform — Product Design</p>
+      </div>
+    </div>
+
+    <div class="portfolio-item" data-portfolio>
+      <div class="portfolio-visual">
+        <svg viewBox="0 0 600 375" xmlns="http://www.w3.org/2000/svg">
+          <rect width="600" height="375" fill="#1a1a1a"/>
+          <rect x="40" y="40" width="520" height="295" rx="8" fill="none" stroke="#d4ff2b" stroke-width="0.5" opacity="0.3"/>
+          <rect x="60" y="80" width="200" height="12" rx="2" fill="#d4ff2b" opacity="0.6"/>
+          <rect x="60" y="110" width="300" height="8" rx="2" fill="#333"/>
+          <rect x="60" y="130" width="260" height="8" rx="2" fill="#333"/>
+          <rect x="60" y="180" width="480" height="120" rx="4" fill="#222"/>
+          <text x="300" y="248" font-family="Georgia" font-size="28" fill="#f0ece4" text-anchor="middle" font-style="italic">Meridian</text>
+        </svg>
+      </div>
+      <div class="portfolio-overlay">
+        <span class="year">2025</span>
+        <h3>Meridian Studio</h3>
+        <p>Website Redesign — Content Strategy</p>
+      </div>
+    </div>
+
+    <div class="portfolio-item" data-portfolio>
+      <div class="portfolio-visual">
+        <svg viewBox="0 0 600 375" xmlns="http://www.w3.org/2000/svg">
+          <rect width="600" height="375" fill="#0f0f0f"/>
+          <polygon points="300,60 540,280 60,280" fill="none" stroke="#d4ff2b" stroke-width="1" opacity="0.4"/>
+          <polygon points="300,100 480,260 120,260" fill="none" stroke="#d4ff2b" stroke-width="0.5" opacity="0.2"/>
+          <text x="300" y="330" font-family="monospace" font-size="18" fill="#f0ece4" text-anchor="middle" letter-spacing="12">APEX</text>
+        </svg>
+      </div>
+      <div class="portfolio-overlay">
+        <span class="year">2024</span>
+        <h3>Apex Athletics</h3>
+        <p>Brand Identity — App Design — Motion</p>
+      </div>
+    </div>
+
+    <div class="portfolio-item" data-portfolio>
+      <div class="portfolio-visual">
+        <svg viewBox="0 0 600 375" xmlns="http://www.w3.org/2000/svg">
+          <rect width="600" height="375" fill="#141418"/>
+          <circle cx="200" cy="187" r="80" fill="#d4ff2b" opacity="0.08"/>
+          <circle cx="400" cy="187" r="80" fill="#d4ff2b" opacity="0.08"/>
+          <circle cx="300" cy="187" r="80" fill="#d4ff2b" opacity="0.05"/>
+          <text x="300" y="195" font-family="Georgia" font-size="36" fill="#f0ece4" text-anchor="middle">Lumière</text>
+        </svg>
+      </div>
+      <div class="portfolio-overlay">
+        <span class="year">2024</span>
+        <h3>Lumière Gallery</h3>
+        <p>E-commerce — Web Design — Photography</p>
+      </div>
+    </div>
+
+    <div class="portfolio-item" data-portfolio>
+      <div class="portfolio-visual">
+        <svg viewBox="0 0 600 375" xmlns="http://www.w3.org/2000/svg">
+          <rect width="600" height="375" fill="#111114"/>
+          <rect x="100" y="80" width="400" height="215" rx="12" fill="#1a1a1e"/>
+          <rect x="130" y="110" width="80" height="80" rx="8" fill="#d4ff2b" opacity="0.15"/>
+          <rect x="130" y="210" width="160" height="10" rx="2" fill="#333"/>
+          <rect x="130" y="230" width="120" height="10" rx="2" fill="#252525"/>
+          <rect x="250" y="110" width="220" height="155" rx="6" fill="#1e1e22"/>
+          <text x="360" y="195" font-family="monospace" font-size="14" fill="#d4ff2b" text-anchor="middle" opacity="0.7">SOLSTICE</text>
+        </svg>
+      </div>
+      <div class="portfolio-overlay">
+        <span class="year">2024</span>
+        <h3>Solstice Health</h3>
+        <p>Product Design — Development — Strategy</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Stats -->
+<div class="stats-section">
+  <div class="stat-item">
+    <div class="stat-number" data-count="127">0</div>
+    <div class="stat-label">Projects Delivered</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number" data-count="43">0</div>
+    <div class="stat-label">Active Clients</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number" data-count="12">0</div>
+    <div class="stat-label">Awards Won</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number" data-count="6">0</div>
+    <div class="stat-label">Years Running</div>
+  </div>
+</div>
+
+<!-- Process -->
+<section id="process">
+  <div class="section-label">How we work</div>
+  <div class="section-number">03</div>
+  <h2 class="section-title">A process built for <em>precision</em></h2>
+  <div class="process-list">
+    <div class="process-item" data-process>
+      <div class="process-step">01</div>
+      <div class="process-content">
+        <h3>Discovery & Strategy</h3>
+        <p>We start by deeply understanding your business, audience, and competitive landscape. Research-driven insights fuel every decision that follows.</p>
+      </div>
+    </div>
+    <div class="process-item" data-process>
+      <div class="process-step">02</div>
+      <div class="process-content">
+        <h3>Concept & Design</h3>
+        <p>Bold creative direction meets functional design. We present multiple directions, refine relentlessly, and won't stop until every pixel is intentional.</p>
+      </div>
+    </div>
+    <div class="process-item" data-process>
+      <div class="process-step">03</div>
+      <div class="process-content">
+        <h3>Build & Develop</h3>
+        <p>Clean, performant code brought to life with smooth animations and thoughtful interactions. We build for speed, accessibility, and scale.</p>
+      </div>
+    </div>
+    <div class="process-item" data-process>
+      <div class="process-step">04</div>
+      <div class="process-content">
+        <h3>Launch & Evolve</h3>
+        <p>Launch is just the beginning. We monitor performance, gather data, and iterate continuously to keep your brand ahead of the curve.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonial -->
+<section>
+  <div class="testimonial-section" data-testimonial>
+    <div class="quote-mark">"</div>
+    <p class="testimonial-text">Working with Volta completely transformed how we present ourselves to the world. They didn't just redesign our brand — they redefined how our audience experiences it.</p>
+    <div class="testimonial-author">Sarah Chen</div>
+    <div class="testimonial-role">CEO, Aurora Finance</div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="contact">
+  <h2 data-cta>
+    Let's build<br>something <em>bold</em>
+  </h2>
+  <button class="cta-btn hoverable" onclick="window.location.href='mailto:hello@volta.studio'">
+    Start a project
+  </button>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-brand">
+    <span class="logo">VOLTA<span>.</span></span>
+    <p>A creative digital agency crafting brands and experiences that leave a lasting impression. Based everywhere, creating for everyone.</p>
+  </div>
+  <div class="footer-links">
+    <h4>Navigation</h4>
+    <a href="#services" class="hoverable">Services</a>
+    <a href="#portfolio" class="hoverable">Work</a>
+    <a href="#process" class="hoverable">Process</a>
+    <a href="#contact" class="hoverable">Contact</a>
+  </div>
+  <div class="footer-contact">
+    <h4>Get in touch</h4>
+    <p>hello@volta.studio</p>
+    <p>+1 (604) 555-0177</p>
+    <p>Vancouver, BC</p>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Volta Studio. All rights reserved.</span>
+    <span>Crafted with obsession</span>
+  </div>
+</footer>
+
+<script>
+  // ─── Register GSAP ScrollTrigger ───
+  gsap.registerPlugin(ScrollTrigger);
+
+  // ─── Custom Cursor ───
+  const cursor = document.getElementById('cursor');
+  document.addEventListener('mousemove', (e) => {
+    gsap.to(cursor, { x: e.clientX - 10, y: e.clientY - 10, duration: 0.15, ease: 'power2.out' });
+  });
+  document.querySelectorAll('.hoverable, .service-card, .portfolio-item, .process-item, .cta-btn').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
+  });
+
+  // ─── Hero Animations ───
+  const heroTL = gsap.timeline({ defaults: { ease: 'power4.out' } });
+  heroTL
+    .to('.hero-line-inner', { y: 0, duration: 1.4, stagger: 0.12, delay: 0.3 })
+    .to('.hero-tag', { opacity: 1, y: 0, duration: 0.8 }, '-=0.8')
+    .to('.hero-sub', { opacity: 1, y: 0, duration: 0.8 }, '-=0.5')
+    .to('.hero-cta', { opacity: 1, y: 0, duration: 0.6 }, '-=0.4')
+    .to('.hero-scroll', { opacity: 1, duration: 0.6 }, '-=0.3');
+
+  // ─── Hero Parallax ───
+  gsap.to('.hero-bg-text', {
+    yPercent: -20,
+    scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1 }
+  });
+
+  // ─── Marquee ───
+  const marquee = document.getElementById('marquee');
+  const marqueeWidth = marquee.scrollWidth / 2;
+  gsap.to(marquee, {
+    x: -marqueeWidth,
+    duration: 30,
+    ease: 'none',
+    repeat: -1,
+    modifiers: {
+      x: gsap.utils.unitize(x => parseFloat(x) % marqueeWidth)
+    }
+  });
+
+  // ─── Section Labels & Titles ───
+  gsap.utils.toArray('.section-label, .section-number').forEach(el => {
+    gsap.from(el, {
+      opacity: 0, x: -30, duration: 0.8,
+      scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none reverse' }
+    });
+  });
+
+  gsap.utils.toArray('.section-title').forEach(el => {
+    gsap.from(el, {
+      opacity: 0, y: 60, duration: 1, ease: 'power3.out',
+      scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none reverse' }
+    });
+  });
+
+  // ─── Service Cards ───
+  gsap.utils.toArray('[data-service]').forEach((card, i) => {
+    gsap.from(card, {
+      opacity: 0, y: 80, duration: 0.8, delay: i * 0.1, ease: 'power3.out',
+      scrollTrigger: { trigger: card, start: 'top 90%', toggleActions: 'play none none reverse' }
+    });
+  });
+
+  // ─── Portfolio Items ───
+  gsap.utils.toArray('[data-portfolio]').forEach((item, i) => {
+    gsap.from(item, {
+      opacity: 0, y: 100, scale: 0.95, duration: 1, delay: i * 0.15, ease: 'power3.out',
+      scrollTrigger: { trigger: item, start: 'top 90%', toggleActions: 'play none none reverse' }
+    });
+  });
+
+  // ─── Stats Counter ───
+  gsap.utils.toArray('.stat-number').forEach(el => {
+    const target = parseInt(el.dataset.count);
+    const obj = { val: 0 };
+    gsap.to(obj, {
+      val: target,
+      duration: 2,
+      ease: 'power2.out',
+      scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none reverse' },
+      onUpdate: () => { el.textContent = Math.round(obj.val) + '+'; }
+    });
+  });
+
+  // ─── Process Items ───
+  gsap.utils.toArray('[data-process]').forEach((item, i) => {
+    gsap.from(item, {
+      opacity: 0, x: -60, duration: 0.8, delay: i * 0.15, ease: 'power3.out',
+      scrollTrigger: { trigger: item, start: 'top 85%', toggleActions: 'play none none reverse' }
+    });
+  });
+
+  // ─── Testimonial ───
+  gsap.from('[data-testimonial]', {
+    opacity: 0, y: 80, duration: 1.2, ease: 'power3.out',
+    scrollTrigger: { trigger: '[data-testimonial]', start: 'top 80%', toggleActions: 'play none none reverse' }
+  });
+
+  // ─── CTA ───
+  gsap.from('[data-cta]', {
+    opacity: 0, scale: 0.9, duration: 1.2, ease: 'power3.out',
+    scrollTrigger: { trigger: '[data-cta]', start: 'top 80%', toggleActions: 'play none none reverse' }
+  });
+
+  // ─── Smooth Scroll for nav links ───
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+</script>
+
+</body>
+</html>
